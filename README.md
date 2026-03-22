@@ -4,28 +4,41 @@ A calm, minimal journaling application built with Next.js, TypeScript, and Tailw
 
 ## Project Structure
 
-- **next-app/**: The main application.
-- **legacy_src_backup/**: Backup of the previous React/Vite implementation (kept for reference).
+- **frontend/**: The main Next.js application.
+- **backend/**: Placeholder for future backend/server code.
+- **guidelines/**: Project-specific notes and guidelines.
+- **_archive_old_react_version/**: Backup of the previous React/Vite implementation (kept for reference, not active).
 
 ## Getting Started
 
-1. Navigate to the app directory:
+1. Install frontend dependencies:
    ```bash
-   cd next-app
+   npm --prefix frontend install
    ```
 
-2. Install dependencies:
+2. Run the frontend development server:
    ```bash
-   npm install
+   npm --prefix frontend run dev
    ```
 
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
+3. Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser.
+## Optional Root Scripts
 
-## Documentation
+You can also run these from the project root:
 
-See the [next-app/README.md](next-app/README.md) for more details.
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+```
+
+## Notes
+
+- No separate backend service exists yet.
+- The old archive folder is intentionally preserved and should not be used for active development.
+
+## Additional Docs
+
+Frontend-specific details remain in [frontend/README.md](frontend/README.md).

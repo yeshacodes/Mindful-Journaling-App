@@ -1,6 +1,6 @@
 # Mindful Micro-Journaling App
 
-A mindful journaling application built with React (Vite) and Node.js.
+A mindful journaling application built with Next.js.
 
 ## Prerequisites
 
@@ -10,17 +10,18 @@ A mindful journaling application built with React (Vite) and Node.js.
 
 ## Project Structure
 
-- **root**: Contains the Next.js application (`next-app`) and documentation.
-- **next-app/**: The main application folder.
+- **root**: Contains the frontend app, backend placeholder, and documentation.
+- **frontend/**: The main Next.js application folder.
+- **backend/**: Placeholder for future backend/server code.
 
 ## Setup Instructions
 
 ### Frontend Setup
 
-Open a terminal in the `next-app` folder:
+Open a terminal in the `frontend` folder:
 
 ```bash
-cd next-app
+cd frontend
 npm install
 ```
 
