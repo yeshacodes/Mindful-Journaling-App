@@ -31,3 +31,12 @@ export function getAuthErrorMessage(message: string) {
   return 'Something went wrong. Please try again.';
 }
 
+export function getOAuthRedirectTo(nextPath = '/dashboard') {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  const callbackUrl = new URL('/auth/callback', window.location.origin);
+  callbackUrl.searchParams.set('next', nextPath);
+  return callbackUrl.toString();
+}

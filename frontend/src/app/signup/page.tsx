@@ -7,7 +7,7 @@ import { buttonClasses } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
-import { getAuthErrorMessage } from '@/lib/auth';
+import { getAuthErrorMessage, getOAuthRedirectTo } from '@/lib/auth';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -17,6 +17,7 @@ export default function SignupPage() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
     useEffect(() => {
         if (!isSupabaseConfigured()) return;
@@ -24,8 +25,8 @@ export default function SignupPage() {
         async function redirectIfAuthenticated() {
             try {
                 const supabase = getSupabaseBrowserClient();
-                const { data } = await supabase.auth.getSession();
-                if (data.session) {
+                const { data } = await supabase.auth.getUser();
+                if (data.user) {
                     router.replace('/dashboard');
                 }
             } catch {
@@ -76,6 +77,36 @@ export default function SignupPage() {
             setErrorMessage('Unable to connect to Supabase. Verify env values and that the project is reachable.');
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleGoogleSignIn = async () => {
+        setErrorMessage(null);
+        setSuccessMessage(null);
+        setIsGoogleSubmitting(true);
+
+        try {
+            if (!isSupabaseConfigured()) {
+                setErrorMessage('Add real Supabase values in frontend/.env.local, then restart the dev server.');
+                return;
+            }
+
+            const supabase = getSupabaseBrowserClient();
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: getOAuthRedirectTo('/dashboard'),
+                },
+            });
+
+            if (error) {
+                setErrorMessage(getAuthErrorMessage(error.message));
+                return;
+            }
+        } catch {
+            setErrorMessage('Unable to start Google sign-in. Please try again.');
+        } finally {
+            setIsGoogleSubmitting(false);
         }
     };
 
@@ -139,10 +170,21 @@ export default function SignupPage() {
                     <div>
                         <button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || isGoogleSubmitting}
                             className={buttonClasses({ variant: 'primary', size: 'md', fullWidth: true })}
                         >
                             {isSubmitting ? 'Creating account...' : 'Sign up'}
+                        </button>
+                    </div>
+
+                    <div>
+                        <button
+                            type="button"
+                            disabled={isSubmitting || isGoogleSubmitting}
+                            onClick={handleGoogleSignIn}
+                            className={buttonClasses({ variant: 'secondary', size: 'md', fullWidth: true })}
+                        >
+                            {isGoogleSubmitting ? 'Redirecting to Google...' : 'Continue with Google'}
                         </button>
                     </div>
                 </form>

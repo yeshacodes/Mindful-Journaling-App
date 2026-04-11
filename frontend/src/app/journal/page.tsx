@@ -41,13 +41,16 @@ export default function JournalHistoryPage() {
     }, []);
 
     const handleLogout = async () => {
+        const supabase = getSupabaseBrowserClient();
         try {
-            const supabase = getSupabaseBrowserClient();
-            await supabase.auth.signOut();
+            const { error } = await supabase.auth.signOut({ scope: 'global' });
+            if (error) throw error;
         } catch {
-            // Fall back to local redirect even if auth client is unavailable.
+            // Ensure this browser session is cleared even if global revoke fails.
+            await supabase.auth.signOut({ scope: 'local' });
         }
         router.replace('/login');
+        router.refresh();
     };
 
     return (

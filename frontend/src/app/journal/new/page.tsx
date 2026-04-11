@@ -2,18 +2,13 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import { buttonClasses } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PromptBox } from '@/components/journal/prompt-box';
 import { createJournalEntry } from '@/lib/journal';
+import { useState, useEffect } from 'react';
 
 const MOODS = ['Calm', 'Happy', 'Anxious', 'Sad', 'Grateful'];
-const PROMPTS = [
-    'What did your mind need most today: stillness, clarity, or release?',
-    'Name one feeling you carried today and where you felt it in your body.',
-    'What is one thing you can thank yourself for right now?',
-];
 
 export default function NewEntryPage() {
     const router = useRouter();
@@ -25,7 +20,35 @@ export default function NewEntryPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const prompt = PROMPTS[new Date().getDate() % PROMPTS.length];
+    const [aiPrompt, setAiPrompt] = useState('');
+    const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
+    const [promptError, setPromptError] = useState<string | null>(null);
+
+    const generatePrompt = async () => {
+        try {
+            setIsGeneratingPrompt(true);
+            setPromptError(null);
+
+            const res = await fetch('/api/journal-prompt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mood, tags }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Failed to generate prompt');
+            }
+
+            setAiPrompt(data.prompt);
+        } catch {
+            setPromptError('Could not generate prompt. Try again.');
+            setAiPrompt('');
+        } finally {
+            setIsGeneratingPrompt(false);
+        }
+    };
 
     const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && tagInput.trim()) {
@@ -54,7 +77,7 @@ export default function NewEntryPage() {
             await createJournalEntry({
                 title,
                 text,
-                mood
+                mood,
             });
 
             setShowToast(true);
@@ -68,9 +91,12 @@ export default function NewEntryPage() {
         }
     };
 
+    useEffect(() => {
+        generatePrompt();
+    }, []);
+
     return (
         <main className="app-shell relative flex min-h-screen flex-col">
-            {/* Toast Notification */}
             {showToast && (
                 <div className="animate-fade-in-down fixed left-1/2 top-5 z-50 -translate-x-1/2 rounded-full bg-[var(--color-accent-strong)] px-6 py-3 text-sm font-medium text-white shadow-lg">
                     Entry saved
@@ -79,9 +105,12 @@ export default function NewEntryPage() {
 
             <nav className="app-nav">
                 <div className="page-wrap max-w-5xl">
-                    <div className="flex justify-between h-16">
+                    <div className="flex h-16 justify-between">
                         <div className="flex items-center">
-                            <Link href="/dashboard" className="text-sm font-medium text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]">
+                            <Link
+                                href="/dashboard"
+                                className="text-sm font-medium text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)]"
+                            >
                                 &larr; Back to Dashboard
                             </Link>
                         </div>
@@ -96,7 +125,7 @@ export default function NewEntryPage() {
                 </div>
             </nav>
 
-            <div className="page-wrap page-section flex-1 max-w-5xl">
+            <div className="page-wrap page-section max-w-5xl flex-1">
                 <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
                     <Card className="p-6 md:p-8">
                         <div className="space-y-6">
@@ -104,21 +133,25 @@ export default function NewEntryPage() {
                                 type="text"
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
-                                placeholder="Title (optional)"
+                                placeholder="Title"
                                 className="w-full border-0 bg-transparent p-0 font-serif text-4xl text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none"
                             />
 
                             <div>
-                                <p className="mb-2 text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">Mood</p>
+                                <p className="mb-2 text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
+                                    Mood
+                                </p>
                                 <div className="flex flex-wrap gap-2">
                                     {MOODS.map((m) => (
                                         <button
                                             key={m}
+                                            type="button"
                                             onClick={() => setMood(m === mood ? undefined : m)}
-                                            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${mood === m
+                                            className={`rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
+                                                mood === m
                                                     ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white'
                                                     : 'border-[var(--color-border)] bg-white/70 text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-text)]'
-                                                }`}
+                                            }`}
                                         >
                                             {m}
                                         </button>
@@ -127,13 +160,19 @@ export default function NewEntryPage() {
                             </div>
 
                             <div>
-                                <p className="mb-2 text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">Tags</p>
+                                <p className="mb-2 text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
+                                    Tags
+                                </p>
                                 <div className="min-h-[40px] space-y-2 rounded-2xl border border-[var(--color-border)] bg-white/65 p-3">
                                     <div className="flex flex-wrap items-center gap-2">
                                         {tags.map((tag) => (
-                                            <span key={tag} className="inline-flex items-center rounded-full bg-[var(--color-surface-strong)] px-2.5 py-1 text-xs font-medium text-[var(--color-muted)]">
+                                            <span
+                                                key={tag}
+                                                className="inline-flex items-center rounded-full bg-[var(--color-surface-strong)] px-2.5 py-1 text-xs font-medium text-[var(--color-muted)]"
+                                            >
                                                 #{tag}
                                                 <button
+                                                    type="button"
                                                     onClick={() => removeTag(tag)}
                                                     className="ml-1.5 text-[var(--color-muted)] hover:text-[var(--color-text)] focus:outline-none"
                                                 >
@@ -146,7 +185,11 @@ export default function NewEntryPage() {
                                             value={tagInput}
                                             onChange={(e) => setTagInput(e.target.value)}
                                             onKeyDown={handleAddTag}
-                                            placeholder={tags.length === 0 ? 'Add tags... (press Enter)' : 'Add another...'}
+                                            placeholder={
+                                                tags.length === 0
+                                                    ? 'Add tags... (press Enter)'
+                                                    : 'Add another...'
+                                            }
                                             className="min-w-[160px] flex-1 border-0 bg-transparent p-0 text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:outline-none"
                                         />
                                     </div>
@@ -160,12 +203,11 @@ export default function NewEntryPage() {
                                 className="min-h-[56vh] w-full resize-none rounded-3xl border border-[var(--color-border)] bg-white/70 p-5 font-serif text-lg leading-relaxed text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-accent)] focus:outline-none"
                             />
 
-                            {errorMessage && (
-                                <p className="text-sm text-red-600">{errorMessage}</p>
-                            )}
+                            {errorMessage && <p className="text-sm text-red-600">{errorMessage}</p>}
 
                             <div className="flex justify-end">
                                 <button
+                                    type="button"
                                     onClick={handleSave}
                                     disabled={isSaving}
                                     className={buttonClasses({ variant: 'primary', size: 'md' })}
@@ -176,22 +218,38 @@ export default function NewEntryPage() {
                         </div>
                     </Card>
 
-                    <div className="space-y-4 lg:sticky lg:top-24 self-start">
+                    <div className="sticky top-24 self-start space-y-4">
                         <Card className="space-y-6 border-dashed bg-[var(--color-surface-strong)]/55 p-4">
-                            <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">Writing Assistant</p>
+                            <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">
+                                Writing Assistant
+                            </p>
+
                             <PromptBox
                                 title="AI suggestion"
-                                prompt={prompt}
+                                prompt={isGeneratingPrompt ? 'Generating a prompt...' : aiPrompt}
                                 className="bg-[var(--color-surface-strong)]"
                                 actionLabel="Use this prompt"
                                 onAction={() => {
-                                    setText((prev) => (prev.trim() ? `${prev}\n\n${prompt}` : prompt));
+                                    if (!aiPrompt) return;
+                                    setText((prev) =>
+                                        prev.trim() ? `${prev}\n\n${aiPrompt}` : aiPrompt
+                                    );
                                 }}
                             />
-                            <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-muted)]">Session</p>
-                            <p className="text-sm text-[var(--color-muted)]">
-                                Keep writing simple. You can edit details later from your history.
-                            </p>
+
+                            <button
+                                type="button"
+                                onClick={generatePrompt}
+                                disabled={isGeneratingPrompt}
+                                className="mt-2 flex w-full items-center justify-center rounded-full border border-[var(--color-border)] bg-white/70 px-4 py-3 text-sm font-medium text-[var(--color-muted)] transition-all hover:border-[var(--color-accent)] hover:text-[var(--color-text)] disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                {isGeneratingPrompt ? 'Getting another prompt...' : 'Get another prompt'}
+                            </button>
+
+                            {promptError && (
+                                <p className="text-sm text-red-600">{promptError}</p>
+                            )}
+
                         </Card>
                     </div>
                 </div>

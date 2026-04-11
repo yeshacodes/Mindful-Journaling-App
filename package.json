@@ -9,6 +9,7 @@
     "install:frontend": "npm --prefix frontend install"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.99.0"
+    "@supabase/supabase-js": "^2.99.0",
+    "openai": "^6.34.0"
   }
 }
