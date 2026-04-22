@@ -2,10 +2,22 @@
 
 import Link from 'next/link';
 import { buttonClasses } from '@/components/ui/button';
+import Image from "next/image";
 
 export default function Home() {
   return (
     <main className="app-shell relative flex min-h-screen flex-col items-center justify-center overflow-hidden p-6">
+
+      <div className="absolute inset-0 -z-10">
+        <Image
+          src="/images/bg-ocean.jpg"
+          alt=""
+          fill
+          priority
+          className="object-cover opacity-[0.3] blur-sm"
+        />
+      </div>
+
       {/* Subtle Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none">
         <div className="absolute left-1/4 top-1/4 h-96 w-96 rounded-full blur-3xl mix-blend-multiply filter" style={{ backgroundColor: 'var(--color-surface-strong)' }} />
@@ -15,15 +27,17 @@ export default function Home() {
       <div className="z-10 w-full max-w-3xl mx-auto text-center space-y-12">
 
         {/* Hero Section */}
-        <div className="space-y-6 animate-fade-in-up">
-          <h1 className="text-4xl md:text-6xl font-serif font-light leading-tight tracking-tight">
-            Capture your thoughts, <br className="hidden md:block" />
-            <span className="italic text-[var(--color-muted)]">one moment at a time.</span>
-          </h1>
+        <div>
+          <div className="relative z-10 space-y-6 animate-fade-in-up">
+            <h1 className="text-4xl md:text-6xl font-serif font-light leading-tight tracking-tight">
+              Capture your thoughts, <br className="hidden md:block" />
+              <span className="italic text-[#687777]">one moment at a time.</span>
+            </h1>
 
-          <p className="mx-auto max-w-xl text-lg font-light leading-relaxed text-[var(--color-muted)] md:text-xl">
-            A quiet space to reflect, write, and grow.
-          </p>
+            <p className="mx-auto max-w-xl text-lg font-light leading-relaxed text-[var(--color-muted)] md:text-xl">
+              A quiet space to reflect, write, and grow.
+            </p>
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -36,7 +50,7 @@ export default function Home() {
           </Link>
           <Link
             href="/login"
-            className={buttonClasses({ variant: 'secondary', size: 'lg' })}
+            className={`${buttonClasses({ variant: 'secondary', size: 'lg' })} border-[#f7f3eb] bg-[#f7f3eb] text-[var(--color-text)] hover:bg-[#ece6da]`}
           >
             Log in
           </Link>
@@ -86,3 +100,5 @@ export default function Home() {
     </main>
   );
 }
+
+
