@@ -13,6 +13,7 @@ export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
@@ -121,16 +122,43 @@ export default function LoginPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
-                        <Input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autoComplete="current-password"
-                            required
-                            label="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        <div className="space-y-2">
+                            <label htmlFor="password" className="text-sm font-medium text-[var(--color-text)]">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    autoComplete="current-password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full rounded-2xl border border-[var(--color-border)] bg-white/85 px-4 py-2.5 pr-12 text-sm text-[var(--color-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-soft)]"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-soft)]"
+                                >
+                                    {showPassword ? (
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current" strokeWidth="2">
+                                            <path d="M2 12s3.5-8 10-8 10 8 10 8-3.5 8-10 8-10-8-10-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    ) : (
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current" strokeWidth="2">
+                                            <path d="M3 3l18 18" />
+                                            <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+                                            <path d="M9.9 4.2A10.9 10.9 0 0112 4c5.5 0 9.4 4.7 10 8-.2 1.2-.9 2.7-2.1 4.1" />
+                                            <path d="M6.2 6.2C4.2 7.6 2.8 9.8 2 12c.6 3.3 4.5 8 10 8 1.8 0 3.4-.5 4.7-1.2" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     {errorMessage && (

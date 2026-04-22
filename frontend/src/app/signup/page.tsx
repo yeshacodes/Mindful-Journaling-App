@@ -9,15 +9,59 @@ import { Input } from '@/components/ui/input';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
 import { getAuthErrorMessage, getOAuthRedirectTo } from '@/lib/auth';
 
+type PasswordRequirement = {
+    label: string;
+    message: string;
+    met: boolean;
+};
+
+function getPasswordRequirements(password: string): PasswordRequirement[] {
+    return [
+        {
+            label: 'At least 8 characters',
+            message: 'Password must be at least 8 characters long.',
+            met: password.length >= 8,
+        },
+        {
+            label: 'At least 1 uppercase letter',
+            message: 'Password must include at least 1 uppercase letter.',
+            met: /[A-Z]/.test(password),
+        },
+        {
+            label: 'At least 1 lowercase letter',
+            message: 'Password must include at least 1 lowercase letter.',
+            met: /[a-z]/.test(password),
+        },
+        {
+            label: 'At least 1 number',
+            message: 'Password must include at least 1 number.',
+            met: /\d/.test(password),
+        },
+        {
+            label: 'At least 1 special character',
+            message: 'Password must include at least 1 special character.',
+            met: /[^A-Za-z0-9]/.test(password),
+        },
+    ];
+}
+
+function getPasswordValidationMessage(password: string): string | null {
+    const unmetRequirement = getPasswordRequirements(password).find((requirement) => !requirement.met);
+    return unmetRequirement?.message ?? null;
+}
+
 export default function SignupPage() {
     const router = useRouter();
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
+    const passwordRequirements = getPasswordRequirements(password);
+    const passwordValidationMessage = getPasswordValidationMessage(password);
 
     useEffect(() => {
         if (!isSupabaseConfigured()) return;
@@ -41,6 +85,12 @@ export default function SignupPage() {
         e.preventDefault();
         setErrorMessage(null);
         setSuccessMessage(null);
+
+        if (passwordValidationMessage) {
+            setErrorMessage(passwordValidationMessage);
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -148,16 +198,58 @@ export default function SignupPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
-                        <Input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autoComplete="new-password"
-                            required
-                            label="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        <div className="space-y-2">
+                            <label htmlFor="password" className="text-sm font-medium text-[var(--color-text)]">
+                                Password
+                            </label>
+                            <div className="relative">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? 'text' : 'password'}
+                                    autoComplete="new-password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full rounded-2xl border border-[var(--color-border)] bg-white/85 px-4 py-2.5 pr-12 text-sm text-[var(--color-text)] shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-soft)]"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-[var(--color-muted)] transition-colors hover:text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-soft)]"
+                                >
+                                    {showPassword ? (
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current" strokeWidth="2">
+                                            <path d="M2 12s3.5-8 10-8 10 8 10 8-3.5 8-10 8-10-8-10-8z" />
+                                            <circle cx="12" cy="12" r="3" />
+                                        </svg>
+                                    ) : (
+                                        <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 fill-none stroke-current" strokeWidth="2">
+                                            <path d="M3 3l18 18" />
+                                            <path d="M10.6 10.6a2 2 0 002.8 2.8" />
+                                            <path d="M9.9 4.2A10.9 10.9 0 0112 4c5.5 0 9.4 4.7 10 8-.2 1.2-.9 2.7-2.1 4.1" />
+                                            <path d="M6.2 6.2C4.2 7.6 2.8 9.8 2 12c.6 3.3 4.5 8 10 8 1.8 0 3.4-.5 4.7-1.2" />
+                                        </svg>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                        {password.length > 0 && (
+                            <div className="space-y-1">
+                                <p className="text-sm text-[var(--color-muted)]">Password must include:</p>
+                                <ul className="space-y-1 text-sm">
+                                    {passwordRequirements.map((requirement) => (
+                                        <li
+                                            key={requirement.label}
+                                            className={requirement.met ? 'text-emerald-700' : 'text-[var(--color-muted)]'}
+                                        >
+                                            {requirement.met ? '[x]' : '[ ]'} {requirement.label}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
 
                     {errorMessage && (
@@ -200,3 +292,4 @@ export default function SignupPage() {
         </main>
     );
 }
+
