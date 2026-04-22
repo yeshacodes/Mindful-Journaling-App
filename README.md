@@ -1,44 +1,66 @@
-# Mindful Micro-Journaling App
+# 🌿 Mindful Micro-Journaling App
 
-A calm, minimal journaling application built with Next.js, TypeScript, and Tailwind CSS.
+A calm, minimal journaling application designed to help users reflect, track moods, and build mindfulness habits.
 
-## Project Structure
+Built with **Next.js, TypeScript, Tailwind CSS, Supabase, and OpenAI**.
 
-- **frontend/**: The main Next.js application.
-- **backend/**: Placeholder for future backend/server code.
-- **guidelines/**: Project-specific notes and guidelines.
-- **_archive_old_react_version/**: Backup of the previous React/Vite implementation (kept for reference, not active).
+---
 
-## Getting Started
+## 🌐 Live Demo
 
-1. Install frontend dependencies:
-   ```bash
-   npm --prefix frontend install
-   ```
+👉 https://your-vercel-link.vercel.app
 
-2. Run the frontend development server:
-   ```bash
-   npm --prefix frontend run dev
-   ```
+---
 
-3. Open [http://localhost:3000](http://localhost:3000) with your browser.
+## ✨ Features
 
-## Optional Root Scripts
+- 🧠 AI-powered journaling prompts (OpenAI)
+- 🔐 Authentication (Email + Google OAuth via Supabase)
+- 📝 Create and manage journal entries
+- 🎭 Mood tagging for each entry
+- 🔄 Generate new prompts dynamically
+- 🎨 Clean, minimal, calming UI
 
-You can also run these from the project root:
+---
 
+## 🏗️ Tech Stack
+
+- **Frontend**: Next.js (App Router), TypeScript, Tailwind CSS  
+- **Backend/Auth**: Supabase  
+- **AI Integration**: OpenAI API  
+- **Deployment**: Vercel  
+
+---
+
+## 📁 Project Structure
+
+- **frontend/** – Main Next.js application  
+- **backend/** – Placeholder for future backend logic  
+- **guidelines/** – Project notes and references  
+
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repository
 ```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
-```
+git clone https://github.com/your-username/mindful-micro-journaling-app.git
+cd mindful-micro-journaling-app
 
-## Notes
+2. Install dependencies
+npm --prefix frontend install
 
-- No separate backend service exists yet.
-- The old archive folder is intentionally preserved and should not be used for active development.
+3. Set up environment variables
+Create a .env.local file inside the frontend/ folder and add:
 
-## Additional Docs
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+OPENAI_API_KEY=your_key
 
-Frontend-specific details remain in [frontend/README.md](frontend/README.md).
+4. Run the development server
+npm --prefix frontend run dev
+
+5. Open the app
+Visit:
+http://localhost:3000
