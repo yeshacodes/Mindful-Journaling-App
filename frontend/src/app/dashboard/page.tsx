@@ -187,11 +187,6 @@ export default function DashboardPage() {
                     <Card className="p-10 text-center">
                         <p className="text-sm text-red-600">{loadError}</p>
                     </Card>
-                ) : entries.length === 0 ? (
-                    <Card className="p-10 text-center">
-                        <p className="text-lg font-serif text-[var(--color-text)]">Your journal is empty.</p>
-                        <p className="mt-2 text-sm text-[var(--color-muted)]">Start with one short note today.</p>
-                    </Card>
                 ) : (
                     <>
                         {moodTrends && (
@@ -205,155 +200,174 @@ export default function DashboardPage() {
                                     </span>
                                 </div>
 
-                                <div className="space-y-3">
-                                    <p className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                                        This Week
+                                {moodTrends.totalEntries === 0 ? (
+                                    <p className="text-sm text-[var(--color-muted)]">
+                                        No mood data yet. Create your first journal entry to start tracking your trends.
                                     </p>
-                                    <div className="grid gap-3 text-sm text-[var(--color-muted)] md:grid-cols-2">
-                                        <p>
-                                            Total entries:{' '}
-                                            <span className="font-medium text-[var(--color-text)]">
-                                                {moodTrends.thisWeek.totalEntries}
-                                            </span>
-                                        </p>
-                                        <p>
-                                            You&apos;ve been feeling mostly{' '}
-                                            <span className="font-medium text-[var(--color-text)]">
-                                                {moodTrends.thisWeek.mostCommonMood ?? 'a mix of emotions this week'}
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <p className="mb-2 text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                                        Last 7 Days
+                                ) : moodTrends.totalEntries < 3 ? (
+                                    <p className="text-sm text-[var(--color-muted)]">
+                                        We&apos;re still building your mood trends. Add a few more entries to unlock weekly and monthly insights.
                                     </p>
-                                    <div className="grid grid-cols-7 gap-2">
-                                        {moodTrends.last7Days.map((day) => (
-                                            <div
-                                                key={day.date}
-                                                className="rounded-2xl border border-[var(--color-border)] bg-white/65 px-2 py-2 text-center"
-                                            >
-                                                <p className="text-[10px] text-[var(--color-muted)]">
-                                                    {parseLocalDateKey(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
-                                                </p>
-                                                <p className="mt-1 text-sm font-medium text-[var(--color-text)]">{day.count}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3 border-t border-[var(--color-border)] pt-4">
-                                    <p className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                                        This Month
-                                    </p>
-                                    <div className="grid gap-3 text-sm text-[var(--color-muted)] md:grid-cols-2">
-                                        <p>
-                                            Total entries:{' '}
-                                            <span className="font-medium text-[var(--color-text)]">
-                                                {moodTrends.thisMonth.totalEntries}
-                                            </span>
-                                        </p>
-                                        <p>
-                                            You&apos;ve been feeling mostly{' '}
-                                            <span className="font-medium text-[var(--color-text)]">
-                                                {moodTrends.thisMonth.mostCommonMood ?? 'a mix of emotions this month'}
-                                            </span>
-                                        </p>
-                                    </div>
-                                    {Object.keys(moodTrends.thisMonth.moodCounts).length === 0 ? (
-                                        <p className="text-sm text-[var(--color-muted)]">
-                                            No mood data this month yet.
-                                        </p>
-                                    ) : (
-                                        <div className="flex flex-wrap gap-2">
-                                            {Object.entries(moodTrends.thisMonth.moodCounts)
-                                                .sort((a, b) => b[1] - a[1])
-                                                .map(([mood, count]) => (
-                                                    <span
-                                                        key={mood}
-                                                        className="rounded-full border border-[var(--color-border)] bg-white/70 px-3 py-1 text-xs text-[var(--color-muted)]"
-                                                    >
-                                                        {mood}: {count}
+                                ) : (
+                                    <>
+                                        <div className="space-y-3">
+                                            <p className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                                                This Week
+                                            </p>
+                                            <div className="grid gap-3 text-sm text-[var(--color-muted)] md:grid-cols-2">
+                                                <p>
+                                                    Total entries:{' '}
+                                                    <span className="font-medium text-[var(--color-text)]">
+                                                        {moodTrends.thisWeek.totalEntries}
                                                     </span>
-                                                ))}
+                                                </p>
+                                                <p>
+                                                    You&apos;ve been feeling mostly{' '}
+                                                    <span className="font-medium text-[var(--color-text)]">
+                                                        {moodTrends.thisWeek.mostCommonMood ?? 'a mix of emotions this week'}
+                                                    </span>
+                                                </p>
+                                            </div>
                                         </div>
-                                    )}
 
-                                    <div className="rounded-2xl border border-[var(--color-border)] bg-white/65 p-4">
-                                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-                                            Mood Insight
-                                        </p>
-                                        <p className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]">
-                                            {isLoadingMoodInsight
-                                                ? 'Looking at your monthly mood pattern...'
-                                                : moodInsight ?? FALLBACK_INSIGHT_MESSAGE}
-                                        </p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3 border-t border-[var(--color-border)] pt-4">
-                                    <p className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                                        Recent Months
-                                    </p>
-                                    {moodTrends.monthlyMoodCounts.length === 0 ? (
-                                        <p className="text-sm text-[var(--color-muted)]">
-                                            No monthly trends yet.
-                                        </p>
-                                    ) : (
-                                        <div className="space-y-2">
-                                            {moodTrends.monthlyMoodCounts
-                                                .slice(-3)
-                                                .reverse()
-                                                .map((month) => (
+                                        <div>
+                                            <p className="mb-2 text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                                                Last 7 Days
+                                            </p>
+                                            <div className="grid grid-cols-7 gap-2">
+                                                {moodTrends.last7Days.map((day) => (
                                                     <div
-                                                        key={month.month}
-                                                        className="rounded-2xl border border-[var(--color-border)] bg-white/65 px-3 py-2"
+                                                        key={day.date}
+                                                        className="rounded-2xl border border-[var(--color-border)] bg-white/65 px-2 py-2 text-center"
                                                     >
-                                                        <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
-                                                            {formatMonthLabel(month.month)}
+                                                        <p className="text-[10px] text-[var(--color-muted)]">
+                                                            {parseLocalDateKey(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
                                                         </p>
-                                                        {Object.keys(month.moods).length === 0 ? (
-                                                            <p className="mt-1 text-sm text-[var(--color-muted)]">
-                                                                No mood data
-                                                            </p>
-                                                        ) : (
-                                                            <p className="mt-1 text-sm text-[var(--color-muted)]">
-                                                                {Object.entries(month.moods)
-                                                                    .sort((a, b) => b[1] - a[1])
-                                                                    .map(([mood, count]) => `${mood}: ${count}`)
-                                                                    .join(' | ')}
-                                                            </p>
-                                                        )}
+                                                        <p className="mt-1 text-sm font-medium text-[var(--color-text)]">{day.count}</p>
                                                     </div>
                                                 ))}
+                                            </div>
                                         </div>
-                                    )}
-                                </div>
+
+                                        <div className="space-y-3 border-t border-[var(--color-border)] pt-4">
+                                            <p className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                                                This Month
+                                            </p>
+                                            <div className="grid gap-3 text-sm text-[var(--color-muted)] md:grid-cols-2">
+                                                <p>
+                                                    Total entries:{' '}
+                                                    <span className="font-medium text-[var(--color-text)]">
+                                                        {moodTrends.thisMonth.totalEntries}
+                                                    </span>
+                                                </p>
+                                                <p>
+                                                    You&apos;ve been feeling mostly{' '}
+                                                    <span className="font-medium text-[var(--color-text)]">
+                                                        {moodTrends.thisMonth.mostCommonMood ?? 'a mix of emotions this month'}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            {Object.keys(moodTrends.thisMonth.moodCounts).length === 0 ? (
+                                                <p className="text-sm text-[var(--color-muted)]">
+                                                    No mood data this month yet.
+                                                </p>
+                                            ) : (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {Object.entries(moodTrends.thisMonth.moodCounts)
+                                                        .sort((a, b) => b[1] - a[1])
+                                                        .map(([mood, count]) => (
+                                                            <span
+                                                                key={mood}
+                                                                className="rounded-full border border-[var(--color-border)] bg-white/70 px-3 py-1 text-xs text-[var(--color-muted)]"
+                                                            >
+                                                                {mood}: {count}
+                                                            </span>
+                                                        ))}
+                                                </div>
+                                            )}
+
+                                            <div className="rounded-2xl border border-[var(--color-border)] bg-white/65 p-4">
+                                                <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
+                                                    Mood Insight
+                                                </p>
+                                                <p className="mt-2 text-sm leading-relaxed text-[var(--color-muted)]">
+                                                    {isLoadingMoodInsight
+                                                        ? 'Looking at your monthly mood pattern...'
+                                                        : moodInsight ?? FALLBACK_INSIGHT_MESSAGE}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3 border-t border-[var(--color-border)] pt-4">
+                                            <p className="text-xs uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                                                Recent Months
+                                            </p>
+                                            {moodTrends.monthlyMoodCounts.length === 0 ? (
+                                                <p className="text-sm text-[var(--color-muted)]">
+                                                    No monthly trends yet.
+                                                </p>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    {moodTrends.monthlyMoodCounts
+                                                        .slice(-3)
+                                                        .reverse()
+                                                        .map((month) => (
+                                                            <div
+                                                                key={month.month}
+                                                                className="rounded-2xl border border-[var(--color-border)] bg-white/65 px-3 py-2"
+                                                            >
+                                                                <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">
+                                                                    {formatMonthLabel(month.month)}
+                                                                </p>
+                                                                {Object.keys(month.moods).length === 0 ? (
+                                                                    <p className="mt-1 text-sm text-[var(--color-muted)]">
+                                                                        No mood data
+                                                                    </p>
+                                                                ) : (
+                                                                    <p className="mt-1 text-sm text-[var(--color-muted)]">
+                                                                        {Object.entries(month.moods)
+                                                                            .sort((a, b) => b[1] - a[1])
+                                                                            .map(([mood, count]) => `${mood}: ${count}`)
+                                                                            .join(' | ')}
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                             </Card>
                         )}
 
-                        <section className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
-                                    Recent Entries
-                                </h3>
-                            </div>
-                            <div className="grid gap-5 md:grid-cols-2">
-                                {entries.slice(0, 6).map((entry) => (
-                                    <JournalCard
-                                        key={entry.id}
-                                        title={entry.title}
-                                        text={entry.text}
-                                        date={formatRelativeDate(entry.createdAt)}
-                                        mood={entry.mood}
-                                        onClick={() => router.push(`/journal/${entry.id}`)}
-                                        compact
-                                    />
-                                ))}
-                            </div>
-                        </section>
+                        {entries.length === 0 ? (
+                            <Card className="p-10 text-center">
+                                <p className="text-lg font-serif text-[var(--color-text)]">Your journal is empty.</p>
+                                <p className="mt-2 text-sm text-[var(--color-muted)]">Start with one short note today.</p>
+                            </Card>
+                        ) : (
+                            <section className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--color-muted)]">
+                                        Recent Entries
+                                    </h3>
+                                </div>
+                                <div className="grid gap-5 md:grid-cols-2">
+                                    {entries.slice(0, 6).map((entry) => (
+                                        <JournalCard
+                                            key={entry.id}
+                                            title={entry.title}
+                                            text={entry.text}
+                                            date={formatRelativeDate(entry.createdAt)}
+                                            mood={entry.mood}
+                                            onClick={() => router.push(`/journal/${entry.id}`)}
+                                            compact
+                                        />
+                                    ))}
+                                </div>
+                            </section>
+                        )}
                     </>
                 )}
 
