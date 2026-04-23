@@ -4,17 +4,21 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const next = requestUrl.searchParams.get('next') ?? '/dashboard';
+  const successUrl = new URL('/dashboard', requestUrl.origin);
+  const failureUrl = new URL('/login', requestUrl.origin);
+  failureUrl.searchParams.set('error', 'oauth_callback_failed');
 
-  const safeNextPath = next.startsWith('/') ? next : '/dashboard';
-  const redirectUrl = new URL(safeNextPath, requestUrl.origin);
-  const response = NextResponse.redirect(redirectUrl);
+  if (!code) {
+    return NextResponse.redirect(failureUrl);
+  }
+
+  const response = NextResponse.redirect(successUrl);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  if (!supabaseUrl || !supabaseAnonKey || !code) {
-    return response;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.redirect(failureUrl);
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -30,6 +34,10 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  await supabase.auth.exchangeCodeForSession(code);
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) {
+    return NextResponse.redirect(failureUrl);
+  }
+
   return response;
 }

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { buttonClasses } from '@/components/ui/button';
 import { JournalCard } from '@/components/journal/journal-card';
 import { Card } from '@/components/ui/card';
+import { CalendarView } from '@/components/CalendarView';
 import { getSupabaseBrowserClient } from '@/lib/supabase';
 import { getJournalEntries, JournalEntry } from '@/lib/journal';
 import { getMoodTrendSummary, MoodTrendSummary } from '@/lib/moodTrends';
@@ -340,6 +341,7 @@ export default function DashboardPage() {
                                 )}
                             </Card>
                         )}
+                        <CalendarView />
 
                         {entries.length === 0 ? (
                             <Card className="p-10 text-center">

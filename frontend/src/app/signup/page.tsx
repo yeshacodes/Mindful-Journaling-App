@@ -7,7 +7,7 @@ import { buttonClasses } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase';
-import { getAuthErrorMessage, getOAuthRedirectTo } from '@/lib/auth';
+import { getAuthErrorMessage } from '@/lib/auth';
 
 type PasswordRequirement = {
     label: string;
@@ -146,7 +146,7 @@ export default function SignupPage() {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: getOAuthRedirectTo('/dashboard'),
+                    redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
                 },
             });
 
