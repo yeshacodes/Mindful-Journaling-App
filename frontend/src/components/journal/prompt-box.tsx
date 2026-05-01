@@ -19,6 +19,7 @@ export function PromptBox({
     <Card className={`border border-[var(--color-border)] bg-[var(--color-surface-strong)] p-4 ${className ?? ''}`}>
       <p className="text-xs uppercase tracking-[0.22em] text-[var(--color-muted)]">{title}</p>
       <p className="mt-2 font-serif text-base leading-relaxed text-[var(--color-text)]">{prompt}</p>
+      {/* Some screens only display a prompt, while others let users insert it. */}
       {onAction && (
         <button
           type="button"

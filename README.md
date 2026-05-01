@@ -35,7 +35,6 @@ Built with **Next.js, TypeScript, Tailwind CSS, Supabase, and OpenAI**.
 ## 📁 Project Structure
 
 - **frontend/** – Main Next.js application  
-- **backend/** – Placeholder for future backend logic  
 - **guidelines/** – Project notes and references  
 
 

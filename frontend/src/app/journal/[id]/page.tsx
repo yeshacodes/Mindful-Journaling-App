@@ -34,6 +34,7 @@ export default function EntryDetailPage() {
 
     useEffect(() => {
         if (!params.id) return;
+        // Next route params can be a string or array, so normalize to one id.
         const id = Array.isArray(params.id) ? params.id[0] : params.id;
 
         async function loadEntry() {
@@ -41,6 +42,7 @@ export default function EntryDetailPage() {
                 const foundEntry = await getJournalEntryById(id);
                 setEntry(foundEntry);
                 if (foundEntry) {
+                    // Keep form fields separate from the saved entry until Save is clicked.
                     setTitle(foundEntry.title === 'Untitled Entry' ? '' : foundEntry.title);
                     setContent(foundEntry.text);
                     setMood(foundEntry.mood);
@@ -84,6 +86,7 @@ export default function EntryDetailPage() {
         setIsSaving(true);
 
         try {
+            // Save the edited form values and refresh local state with the saved row.
             const updated = await updateJournalEntry(entry.id, {
                 title,
                 content,

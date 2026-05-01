@@ -9,6 +9,7 @@ export interface Entry {
 
 const STORAGE_KEY = 'mindful_journal_entries';
 
+// This is the old localStorage data source kept for legacy/demo screens.
 const MOCK_ENTRIES: Entry[] = [
     {
         id: 'mock-1',
@@ -30,6 +31,7 @@ const MOCK_ENTRIES: Entry[] = [
 
 export const entriesStore = {
     getEntries: (): Entry[] => {
+        // localStorage only exists in the browser, not during server rendering.
         if (typeof window === 'undefined') return [];
 
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -42,6 +44,7 @@ export const entriesStore = {
         try {
             return JSON.parse(stored);
         } catch (e) {
+            // Bad saved JSON should not crash the app; return an empty list instead.
             console.error('Failed to parse entries', e);
             return [];
         }

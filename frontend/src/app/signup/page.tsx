@@ -16,6 +16,7 @@ type PasswordRequirement = {
 };
 
 function getPasswordRequirements(password: string): PasswordRequirement[] {
+    // Keep password rules in one place so the checklist and validation match.
     return [
         {
             label: 'At least 8 characters',
@@ -68,6 +69,7 @@ export default function SignupPage() {
 
         async function redirectIfAuthenticated() {
             try {
+                // Signed-in users should go straight to their dashboard.
                 const supabase = getSupabaseBrowserClient();
                 const { data } = await supabase.auth.getUser();
                 if (data.user) {
@@ -100,6 +102,7 @@ export default function SignupPage() {
             }
 
             const supabase = getSupabaseBrowserClient();
+            // Store the full name in Supabase user metadata for the dashboard greeting.
             const { data, error } = await supabase.auth.signUp({
                 email: email.trim(),
                 password,
@@ -117,6 +120,7 @@ export default function SignupPage() {
             }
 
             if (data.session) {
+                // Force new users to sign in after signup, especially when email confirmation is on.
                 await supabase.auth.signOut();
             }
 
@@ -143,6 +147,7 @@ export default function SignupPage() {
             }
 
             const supabase = getSupabaseBrowserClient();
+            // Google signup and login share the same OAuth flow.
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {

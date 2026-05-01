@@ -6,7 +6,7 @@ import { buttonClasses } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { PromptBox } from '@/components/journal/prompt-box';
 import { createJournalEntry } from '@/lib/journal';
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const MOODS = ['Calm', 'Happy', 'Anxious', 'Sad', 'Grateful'];
 
@@ -24,11 +24,12 @@ export default function NewEntryPage() {
     const [isGeneratingPrompt, setIsGeneratingPrompt] = useState(false);
     const [promptError, setPromptError] = useState<string | null>(null);
 
-    const generatePrompt = async () => {
+    const generatePrompt = useCallback(async () => {
         try {
             setIsGeneratingPrompt(true);
             setPromptError(null);
 
+            // Send the selected mood and tags so the prompt can feel more relevant.
             const res = await fetch('/api/journal-prompt', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -48,11 +49,12 @@ export default function NewEntryPage() {
         } finally {
             setIsGeneratingPrompt(false);
         }
-    };
+    }, [mood, tags]);
 
     const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && tagInput.trim()) {
             e.preventDefault();
+            // Avoid duplicate tags so the prompt context stays clean.
             if (!tags.includes(tagInput.trim())) {
                 setTags([...tags, tagInput.trim()]);
             }
@@ -74,6 +76,7 @@ export default function NewEntryPage() {
         setIsSaving(true);
 
         try {
+            // Supabase stores the entry, then the user is returned to history.
             await createJournalEntry({
                 title,
                 text,
@@ -92,8 +95,9 @@ export default function NewEntryPage() {
     };
 
     useEffect(() => {
+        // Keep the prompt matched to the current mood and tags.
         generatePrompt();
-    }, []);
+    }, [generatePrompt]);
 
     return (
         <main className="app-shell relative flex min-h-screen flex-col">

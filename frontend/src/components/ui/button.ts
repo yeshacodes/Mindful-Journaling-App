@@ -14,6 +14,7 @@ export function buttonClasses({
   size = 'md',
   fullWidth = false,
 }: ButtonClassOptions = {}) {
+  // Centralize button styling so pages can share the same variants and sizes.
   return cn(
     'inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] disabled:cursor-not-allowed disabled:opacity-60',
     size === 'sm' && 'px-4 py-2 text-sm',

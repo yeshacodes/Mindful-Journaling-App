@@ -23,6 +23,7 @@ export default function LoginPage() {
 
         async function redirectIfAuthenticated() {
             try {
+                // If a session already exists, skip the login form.
                 const supabase = getSupabaseBrowserClient();
                 const { data } = await supabase.auth.getUser();
                 if (data.user) {
@@ -48,6 +49,7 @@ export default function LoginPage() {
             }
 
             const supabase = getSupabaseBrowserClient();
+            // Email/password sign-in creates the browser session used by protected pages.
             const { error } = await supabase.auth.signInWithPassword({
                 email: email.trim(),
                 password,
@@ -77,6 +79,7 @@ export default function LoginPage() {
             }
 
             const supabase = getSupabaseBrowserClient();
+            // Supabase redirects to Google, then back to /auth/callback.
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {

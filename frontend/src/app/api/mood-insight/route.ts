@@ -25,6 +25,7 @@ type MoodInsightPayload = {
 };
 
 function isSparseData(payload: MoodInsightPayload) {
+  // Very small data sets can sound misleading, so use a fixed gentle message.
   const totalEntries = payload.totalEntries ?? 0;
   const thisMonthEntries = payload.thisMonth?.totalEntries ?? 0;
   const thisMonthMoodCount = Object.keys(payload.thisMonth?.moodCounts ?? {}).length;
@@ -42,6 +43,7 @@ export async function POST(req: Request) {
 
     const payload = (await req.json()) as MoodInsightPayload;
 
+    // Skip the AI call when there is not enough information to summarize.
     if (isSparseData(payload)) {
       return NextResponse.json({ insight: SPARSE_DATA_MESSAGE });
     }

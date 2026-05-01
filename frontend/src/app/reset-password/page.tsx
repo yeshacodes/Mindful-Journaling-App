@@ -15,6 +15,7 @@ type PasswordRequirement = {
 };
 
 function getPasswordRequirements(password: string): PasswordRequirement[] {
+    // These rules match the signup page so passwords are consistent everywhere.
     return [
         {
             label: 'At least 8 characters',
@@ -85,6 +86,7 @@ export default function ResetPasswordPage() {
             }
 
             const supabase = getSupabaseBrowserClient();
+            // The reset link creates a temporary session, then this updates its password.
             const { error } = await supabase.auth.updateUser({ password: newPassword });
 
             if (error) {
@@ -93,6 +95,7 @@ export default function ResetPasswordPage() {
             }
 
             setSuccessMessage('Password updated successfully. You can now sign in.');
+            // Clear the temporary reset session before sending the user to login.
             await supabase.auth.signOut();
             router.replace('/login');
             router.refresh();

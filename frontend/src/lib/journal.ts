@@ -32,6 +32,7 @@ interface UpdateJournalEntryInput {
 }
 
 function mapRowToEntry(row: JournalEntryRow): JournalEntry {
+  // Convert Supabase column names into the friendlier names used by the UI.
   return {
     id: row.id,
     title: row.title?.trim() || 'Untitled Entry',
@@ -43,6 +44,7 @@ function mapRowToEntry(row: JournalEntryRow): JournalEntry {
 }
 
 async function getCurrentUserId() {
+  // Every journal query is scoped to the signed-in user for privacy.
   const supabase = getSupabaseBrowserClient();
   const {
     data: { user },
@@ -57,6 +59,7 @@ async function getCurrentUserId() {
 export async function createJournalEntry(input: CreateJournalEntryInput) {
   const supabase = getSupabaseBrowserClient();
   const userId = await getCurrentUserId();
+  // Store empty titles as null, then show "Untitled Entry" when reading them back.
   const trimmedTitle = input.title?.trim() || null;
 
   const { data, error } = await supabase
@@ -83,6 +86,7 @@ export async function getJournalEntries(limit?: number) {
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
 
+  // The dashboard only needs a small recent list, while history can load all entries.
   if (typeof limit === 'number') {
     query = query.limit(limit);
   }
@@ -101,6 +105,7 @@ export async function getJournalEntryById(id: string) {
     .from('journal_entries')
     .select('id, user_id, title, content, mood, created_at, updated_at')
     .eq('id', id)
+    // This prevents someone from loading another user's entry by guessing an id.
     .eq('user_id', userId)
     .maybeSingle<JournalEntryRow>();
 
@@ -133,6 +138,7 @@ export async function updateJournalEntry(id: string, input: UpdateJournalEntryIn
       title: trimmedTitle,
       content: input.content.trim(),
       mood: input.mood ?? null,
+      // Keep this timestamp fresh so edited entries show their latest save time.
       updated_at: new Date().toISOString(),
     })
     .eq('id', id)

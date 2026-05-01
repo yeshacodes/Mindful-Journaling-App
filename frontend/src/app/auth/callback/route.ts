@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(failureUrl);
   }
 
+  // Supabase writes the session cookies onto this redirect response.
   const response = NextResponse.redirect(successUrl);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
   });
 
   const { error } = await supabase.auth.exchangeCodeForSession(code);
+  // If the code is expired or invalid, send the user back to login.
   if (error) {
     return NextResponse.redirect(failureUrl);
   }

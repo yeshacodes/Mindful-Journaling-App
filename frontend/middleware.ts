@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { isAuthRoute, isProtectedRoute } from './src/lib/auth';
 
 export async function middleware(request: NextRequest) {
+  // Start with a normal response, then attach Supabase cookies if they change.
   const response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -12,6 +13,7 @@ export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+  // Let the app still load during local setup before Supabase env values exist.
   if (!supabaseUrl || !supabaseAnonKey) {
     return response;
   }
@@ -23,6 +25,7 @@ export async function middleware(request: NextRequest) {
       },
       setAll(cookiesToSet) {
         cookiesToSet.forEach(({ name, value, options }) => {
+          // Keep request and response cookies in sync for server-side auth checks.
           request.cookies.set(name, value);
           response.cookies.set(name, value, options);
         });
@@ -36,12 +39,14 @@ export async function middleware(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
+  // Logged-out visitors must sign in before viewing private journal pages.
   if (!user && isProtectedRoute(pathname)) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);
   }
 
+  // Logged-in users do not need to see login/signup again.
   if (user && isAuthRoute(pathname)) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = '/dashboard';

@@ -26,6 +26,7 @@ export type MoodTrendSummary = {
 };
 
 async function getCurrentUserId() {
+  // Mood trends should only use entries owned by the signed-in user.
   const supabase = getSupabaseBrowserClient();
   const {
     data: { user },
@@ -38,11 +39,13 @@ async function getCurrentUserId() {
 }
 
 function normalizeMood(mood: string | null) {
+  // Treat blank mood strings the same as no mood.
   const trimmed = mood?.trim();
   return trimmed ? trimmed : null;
 }
 
 function localDayKey(date: Date) {
+  // Build a local YYYY-MM-DD key so calendar counts match the user's day.
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
   const day = `${date.getDate()}`.padStart(2, '0');
@@ -60,6 +63,7 @@ function incrementCount(target: Record<string, number>, key: string) {
 }
 
 function getMostCommonMood(moodCounts: Record<string, number>) {
+  // Walk the count map once and keep the mood with the highest count.
   let mostCommonMood: string | null = null;
   let maxCount = 0;
 
@@ -98,6 +102,7 @@ export async function getMoodTrendSummary(): Promise<MoodTrendSummary> {
   const now = new Date();
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
+  // These date windows power the weekly, monthly, and 30-day summaries.
   const sevenDayStart = new Date(startOfToday);
   sevenDayStart.setDate(sevenDayStart.getDate() - 6);
 
@@ -107,6 +112,7 @@ export async function getMoodTrendSummary(): Promise<MoodTrendSummary> {
   thirtyDayStart.setDate(thirtyDayStart.getDate() - 29);
 
   const last7DaysCountMap: Record<string, number> = {};
+  // Start each day at zero so days without entries still appear in the UI.
   for (let i = 0; i < 7; i += 1) {
     const day = new Date(sevenDayStart);
     day.setDate(sevenDayStart.getDate() + i);
@@ -133,6 +139,7 @@ export async function getMoodTrendSummary(): Promise<MoodTrendSummary> {
 
     if (!mood) continue;
 
+    // Count the same mood in each summary bucket it belongs to.
     incrementCount(moodCounts, mood);
     if (isInThisWeek) {
       incrementCount(thisWeekMoodCounts, mood);
@@ -149,6 +156,7 @@ export async function getMoodTrendSummary(): Promise<MoodTrendSummary> {
     if (!monthlyBuckets[month]) {
       monthlyBuckets[month] = {};
     }
+    // Monthly buckets let the dashboard compare recent months.
     incrementCount(monthlyBuckets[month], mood);
   }
 

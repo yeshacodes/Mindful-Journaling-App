@@ -78,6 +78,7 @@ export function CalendarView() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
+        // This flag avoids setting state after the user switches months quickly.
         let isMounted = true;
 
         async function loadMonthEntries() {
@@ -132,6 +133,7 @@ export function CalendarView() {
         };
     }, [currentMonth]);
 
+    // Memoize derived calendar data so it only recalculates when its inputs change.
     const monthGrid = useMemo(() => buildMonthGrid(currentMonth), [currentMonth]);
     const totalEntriesThisMonth = useMemo(
         () => Object.values(entriesByDate).reduce((sum, dayEntries) => sum + dayEntries.length, 0),

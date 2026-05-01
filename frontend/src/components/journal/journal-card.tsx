@@ -25,6 +25,7 @@ export function JournalCard({
     <Card
       onClick={onClick}
       className={cn(
+        // The same card works as a static preview or a clickable navigation item.
         'group p-5 transition-all duration-200',
         onClick && 'cursor-pointer hover:-translate-y-0.5 hover:shadow-[0_20px_55px_-32px_rgba(49,66,58,0.45)]',
         compact ? 'space-y-3' : 'space-y-4'
@@ -43,6 +44,7 @@ export function JournalCard({
         <p className="text-xs uppercase tracking-wide text-[var(--color-muted)]">{date}</p>
         {tags && tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
+            {/* Show only a few tags so compact cards stay easy to scan. */}
             {tags.slice(0, compact ? 2 : 3).map((tag) => (
               <span key={tag} className="rounded-full bg-[var(--color-surface-strong)] px-2.5 py-1 text-[11px] text-[var(--color-muted)]">
                 #{tag}

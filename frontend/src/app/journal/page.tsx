@@ -28,6 +28,7 @@ export default function JournalHistoryPage() {
     useEffect(() => {
         async function loadEntries() {
             try {
+                // History shows every entry, so this call has no limit.
                 const journalEntries = await getJournalEntries();
                 setEntries(journalEntries);
             } catch {

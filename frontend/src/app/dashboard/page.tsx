@@ -19,7 +19,7 @@ function formatRelativeDate(dateString: string) {
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
 
-    // Check if it was yesterday
+    // Show friendly labels for the most recent entries.
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     const isYesterday = date.toDateString() === yesterday.toDateString();
@@ -68,6 +68,7 @@ export default function DashboardPage() {
     const router = useRouter();
 
     async function loadMoodInsight(summary: MoodTrendSummary) {
+        // Ask the API for a short reflection based on the user's mood summary.
         setIsLoadingMoodInsight(true);
         try {
             const res = await fetch('/api/mood-insight', {
@@ -100,6 +101,7 @@ export default function DashboardPage() {
                 const supabase = getSupabaseBrowserClient();
                 const { data } = await supabase.auth.getUser();
                 const fullName = data.user?.user_metadata?.full_name;
+                // Google sign-in can provide a full name in user metadata.
                 if (typeof fullName === 'string' && fullName.trim()) {
                     setDisplayName(toTitleCase(fullName.trim()));
                 }
@@ -110,6 +112,7 @@ export default function DashboardPage() {
                 ]);
                 setEntries(journalEntries);
                 setMoodTrends(trendSummary);
+                // Load this after the main dashboard data so the page can render quickly.
                 void loadMoodInsight(trendSummary);
             } catch {
                 setLoadError('Unable to load your journal right now. Please refresh.');
@@ -118,6 +121,7 @@ export default function DashboardPage() {
             }
         }
 
+        // Greeting depends on browser time, so set it after the page mounts.
         setGreeting(getTimeGreeting(new Date().getHours()));
         void loadPageData();
     }, []);

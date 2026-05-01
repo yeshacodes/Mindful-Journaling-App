@@ -20,6 +20,7 @@ export async function POST(req: Request) {
         const mood = body?.mood ?? '';
         const tags = Array.isArray(body?.tags) ? body.tags : [];
 
+        // Add mood and tags as gentle context, but keep the prompt short.
         const context = [
             mood ? `Selected mood: ${mood}` : '',
             tags.length ? `Tags: ${tags.join(', ')}` : '',
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
                 },
                 {
                     role: 'user',
-                    content: `Generate one short journaling prompt.\n\nMood: ${mood || 'none'}\nTags: ${tags?.join(', ') || 'none'}\n\nStyle:\n- calm, warm, human\n- sounds natural and conversational\n- ask a simple question\n- no instructions like "describe", "reflect", or "explain"\n- under 20 words`,
+                    content: `Generate one short journaling prompt.\n\n${context || 'No mood or tags selected.'}\n\nStyle:\n- calm, warm, human\n- sounds natural and conversational\n- ask a simple question\n- no instructions like "describe", "reflect", or "explain"\n- under 20 words`,
                 },
             ],
             max_output_tokens: 60,
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
 
         const prompt = response.output_text?.trim();
 
+        // If the model returns an empty response, treat it as a server error.
         if (!prompt) {
             console.error('OpenAI response had no output_text:', response);
             return NextResponse.json(

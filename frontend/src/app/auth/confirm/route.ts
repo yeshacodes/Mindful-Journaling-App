@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
   });
 
   const { error } = await supabase.auth.verifyOtp({
+    // Supabase sends token_hash and type in email confirmation links.
     token_hash,
     type: type as 'email',
   });

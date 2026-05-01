@@ -6,10 +6,12 @@ export function isAuthRoute(pathname: string) {
 }
 
 export function isProtectedRoute(pathname: string) {
+  // Match both the route itself and nested pages like /journal/new.
   return PROTECTED_ROUTE_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
 export function getAuthErrorMessage(message: string) {
+  // Supabase returns technical messages, so translate the common ones for users.
   const normalized = message.toLowerCase();
 
   if (normalized.includes('invalid login credentials')) {
@@ -32,6 +34,7 @@ export function getAuthErrorMessage(message: string) {
 }
 
 export function getOAuthRedirectTo(nextPath = '/dashboard') {
+  // OAuth redirect URLs need the browser origin, which is not available during SSR.
   if (typeof window === 'undefined') {
     return undefined;
   }
