@@ -8,7 +8,7 @@ Built with **Next.js, TypeScript, Tailwind CSS, Supabase, and OpenAI**.
 
 ## 🌐 Live Demo
 
-👉 https://your-vercel-link.vercel.app
+👉 https://mindful-journaling-app.vercel.app/
 
 ---
 
